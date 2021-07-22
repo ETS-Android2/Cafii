@@ -1,0 +1,2 @@
+rootProject.name = "Cafii"
+include ':app'
