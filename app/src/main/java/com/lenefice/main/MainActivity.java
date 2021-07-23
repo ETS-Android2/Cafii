@@ -18,7 +18,9 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button activateButton, button2Min, button5Min, button15Min, button30Min, button1Hour, cancelButton;
+    private Button activateButton, button2Min, button5Min,
+            button10Min, button30Min, buttonNever, cancelButton;
+
     private TextView textView;
     private CountDownTimer countDownTimer;
 
@@ -35,9 +37,9 @@ public class MainActivity extends AppCompatActivity {
         activateButton = findViewById(R.id.activateButton);
         button2Min = findViewById(R.id.button2Min);
         button5Min = findViewById(R.id.button5Min);
-        button15Min = findViewById(R.id.button15Min);
+        button10Min = findViewById(R.id.button10Min);
         button30Min = findViewById(R.id.button30Min);
-        button1Hour = findViewById(R.id.button1Hour);
+        buttonNever = findViewById(R.id.buttonNever);
         cancelButton = findViewById(R.id.cancelButton);
 
         askPermission();
@@ -53,9 +55,9 @@ public class MainActivity extends AppCompatActivity {
 
         button2Min.setEnabled(false);
         button5Min.setEnabled(false);
-        button15Min.setEnabled(false);
+        button10Min.setEnabled(false);
         button30Min.setEnabled(false);
-        button1Hour.setEnabled(false);
+        buttonNever.setEnabled(false);
         cancelButton.setEnabled(false);
 
         try {
@@ -78,9 +80,9 @@ public class MainActivity extends AppCompatActivity {
 
                     button2Min.setEnabled(true);
                     button5Min.setEnabled(true);
-                    button15Min.setEnabled(true);
+                    button10Min.setEnabled(true);
                     button30Min.setEnabled(true);
-                    button1Hour.setEnabled(true);
+                    buttonNever.setEnabled(true);
                     cancelButton.setEnabled(false);
                     textView.setText("Choose Your Profile :-");
                     activateStatus=true;
@@ -105,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
         button5Min.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setScreenTimeout(7200000);
+                setScreenTimeout(300000);
                 startTimer(300000);
                 if(success) {
                     presetTimer();
@@ -116,11 +118,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        button15Min.setOnClickListener(new View.OnClickListener() {
+        button10Min.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setScreenTimeout(7200000);
-                startTimer(900000);
+                setScreenTimeout(600000);
+                startTimer(600000);
                 if(success) {
                     presetTimer();
                 }
@@ -133,22 +135,8 @@ public class MainActivity extends AppCompatActivity {
         button30Min.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setScreenTimeout(7200000);
+                setScreenTimeout(Integer.MAX_VALUE);
                 startTimer(1800000);
-                if(success) {
-                    presetTimer();
-                }
-                else {
-                    noSuccess();
-                }
-            }
-        });
-
-        button1Hour.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setScreenTimeout(7200000);
-                startTimer(3600000);
                 if(success) {
                     presetTimer();
                 }
@@ -168,9 +156,9 @@ public class MainActivity extends AppCompatActivity {
                 activateButton.setText("Activate");
                 button2Min.setEnabled(false);
                 button5Min.setEnabled(false);
-                button15Min.setEnabled(false);
+                button10Min.setEnabled(false);
                 button30Min.setEnabled(false);
-                button1Hour.setEnabled(false);
+                buttonNever.setEnabled(false);
                 cancelButton.setEnabled(false);
                 activateStatus=false;
             }
@@ -213,17 +201,17 @@ public class MainActivity extends AppCompatActivity {
         activateButton.setEnabled(false);
         button2Min.setEnabled(false);
         button5Min.setEnabled(false);
-        button15Min.setEnabled(false);
+        button10Min.setEnabled(false);
         button30Min.setEnabled(false);
-        button1Hour.setEnabled(false);
+        buttonNever.setEnabled(false);
         cancelButton.setEnabled(true);
     }
     void noSuccess() {
         button2Min.setEnabled(false);
         button5Min.setEnabled(false);
-        button15Min.setEnabled(false);
+        button10Min.setEnabled(false);
         button30Min.setEnabled(false);
-        button1Hour.setEnabled(false);
+        buttonNever.setEnabled(false);
         cancelButton.setEnabled(false);
     }
     void resetScreenTimeOut() {
@@ -236,9 +224,9 @@ public class MainActivity extends AppCompatActivity {
         setScreenTimeout(defaultTimeOut);
         button2Min.setEnabled(false);
         button5Min.setEnabled(false);
-        button15Min.setEnabled(false);
+        button10Min.setEnabled(false);
         button30Min.setEnabled(false);
-        button1Hour.setEnabled(false);
+        buttonNever.setEnabled(false);
         cancelButton.setEnabled(false);
         textView.setText("Not Active");
         activateStatus=false;

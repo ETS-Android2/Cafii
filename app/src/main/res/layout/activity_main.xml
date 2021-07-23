@@ -64,10 +64,10 @@
         app:layout_constraintVertical_bias="0.148" />
 
     <Button
-        android:id="@+id/button15Min"
+        android:id="@+id/button10Min"
         android:layout_width="137dp"
         android:layout_height="51dp"
-        android:text="15 min"
+        android:text="10 min"
         app:backgroundTint="#009688"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -87,21 +87,21 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.86"
-        app:layout_constraintStart_toEndOf="@+id/button15Min"
+        app:layout_constraintStart_toEndOf="@+id/button10Min"
         app:layout_constraintTop_toBottomOf="@+id/button5Min"
         app:layout_constraintVertical_bias="0.147" />
 
     <Button
-        android:id="@+id/button1Hour"
+        android:id="@+id/buttonNever"
         android:layout_width="137dp"
         android:layout_height="51dp"
-        android:text="1 hour"
+        android:text="Never"
         app:backgroundTint="#009688"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:layout_constraintVertical_bias="0.569" />
+        app:layout_constraintVertical_bias="0.584" />
 
     <Button
         android:id="@+id/cancelButton"
@@ -113,7 +113,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button1Hour"
+        app:layout_constraintTop_toBottomOf="@+id/buttonNever"
         app:layout_constraintVertical_bias="0.739" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
