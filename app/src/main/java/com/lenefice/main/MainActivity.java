@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
@@ -19,10 +20,10 @@ public class MainActivity extends AppCompatActivity {
 
     private Button activateButton, button2Min, button5Min, button15Min, button30Min, button1Hour, cancelButton;
     private TextView textView;
+    private CountDownTimer countDownTimer;
 
-    private int testValue;
-    private boolean activateStatus;
-    boolean success = false;
+    private int defaultTimeOut;
+    private boolean success, activateStatus=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,48 +41,54 @@ public class MainActivity extends AppCompatActivity {
         cancelButton = findViewById(R.id.cancelButton);
 
         try {
-            testValue = Settings.System.getInt(getContentResolver(),
+            defaultTimeOut = Settings.System.getInt(getContentResolver(),
                     Settings.System.SCREEN_OFF_TIMEOUT);
         } catch (Settings.SettingNotFoundException e) {
             e.printStackTrace();
         }
 
-        if(testValue != 60000) {
-            activateButton.setEnabled(true);
-            button2Min.setEnabled(false);
-            button5Min.setEnabled(false);
-            button15Min.setEnabled(false);
-            button30Min.setEnabled(false);
-            button1Hour.setEnabled(false);
-            cancelButton.setEnabled(false);
-            activateStatus=false;
-            activateButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    setScreenTimeout(60000);
-                    Toast.makeText(MainActivity.this, "30 Minutes", Toast.LENGTH_SHORT).show();
-                    activateButton.setEnabled(false);
-                    recreate();
+        activateButton.setEnabled(true);
+        button2Min.setEnabled(false);
+        button5Min.setEnabled(false);
+        button15Min.setEnabled(false);
+        button30Min.setEnabled(false);
+        button1Hour.setEnabled(false);
+        cancelButton.setEnabled(false);
+
+        activateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(activateStatus) {
+                    activateOnClick();
+                }
+                else {
+                    activateButton.setEnabled(true);
                     activateButton.setText("Deactivate");
+                    setScreenTimeout(30001);
+
+                    int tempCheck = 0;
+                    try {
+                       tempCheck = Settings.System.getInt(getContentResolver(),
+                                Settings.System.SCREEN_OFF_TIMEOUT);
+                    } catch (Settings.SettingNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    if(tempCheck!=30001) {
+                        setScreenTimeout(30001);
+                        recreate();
+                    }
+
                     button2Min.setEnabled(true);
                     button5Min.setEnabled(true);
                     button15Min.setEnabled(true);
                     button30Min.setEnabled(true);
                     button1Hour.setEnabled(true);
                     cancelButton.setEnabled(false);
+                    textView.setText("Choose Your Profile :-");
+                    activateStatus=true;
                 }
-            });
-        }
-        else {
-            activateButton.setEnabled(false);
-            activateButton.setText("Deactivate");
-            button2Min.setEnabled(true);
-            button5Min.setEnabled(true);
-            button15Min.setEnabled(true);
-            button30Min.setEnabled(true);
-            button1Hour.setEnabled(true);
-            cancelButton.setEnabled(false);
-        }
+            }
+        });
 
         button2Min.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,14 +96,85 @@ public class MainActivity extends AppCompatActivity {
                 setScreenTimeout(7200000);
                 startTimer(120000);
                 if(success) {
-                    activateButton.setEnabled(false);
-                    button2Min.setEnabled(false);
-                    button5Min.setEnabled(false);
-                    button15Min.setEnabled(false);
-                    button30Min.setEnabled(false);
-                    button1Hour.setEnabled(false);
-                    cancelButton.setEnabled(true);
+                    presetTimer();
                 }
+                else {
+                    noSuccess();
+                }
+            }
+        });
+
+        button5Min.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setScreenTimeout(7200000);
+                startTimer(300000);
+                if(success) {
+                    presetTimer();
+                }
+                else {
+                    noSuccess();
+                }
+            }
+        });
+
+        button15Min.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setScreenTimeout(7200000);
+                startTimer(900000);
+                if(success) {
+                    presetTimer();
+                }
+                else {
+                    noSuccess();
+                }
+            }
+        });
+
+        button30Min.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setScreenTimeout(7200000);
+                startTimer(1800000);
+                if(success) {
+                    presetTimer();
+                }
+                else {
+                    noSuccess();
+                }
+            }
+        });
+
+        button1Hour.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setScreenTimeout(7200000);
+                startTimer(3600000);
+                if(success) {
+                    presetTimer();
+                }
+                else {
+                    noSuccess();
+                }
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                countDownTimer.cancel();
+                textView.setText("Not Active");
+                resetScreenTimeOut();
+                activateButton.setEnabled(true);
+                activateButton.setText("Activate");
+                button2Min.setEnabled(false);
+                button5Min.setEnabled(false);
+                button15Min.setEnabled(false);
+                button30Min.setEnabled(false);
+                button1Hour.setEnabled(false);
+                cancelButton.setEnabled(false);
+                activateStatus=false;
             }
         });
     }
@@ -124,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startTimer(int time) {
-        CountDownTimer countDownTimer = new CountDownTimer(time,1000) {
+        countDownTimer = new CountDownTimer(time,1000) {
             @Override
             public void onTick(long l) {
                 int minutes = (int) (l / 1000) / 60;
@@ -137,8 +215,51 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
                 Settings.System.putInt(
-                        getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 60000);
+                        getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 30001);
+                textView.setText("Cool Down Timer of 35 seconds Please Wait");
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        activateOnClick();
+                    }
+                }, 35000);
             }
         }.start();
+    }
+
+    void presetTimer() {
+        activateButton.setEnabled(false);
+        button2Min.setEnabled(false);
+        button5Min.setEnabled(false);
+        button15Min.setEnabled(false);
+        button30Min.setEnabled(false);
+        button1Hour.setEnabled(false);
+        cancelButton.setEnabled(true);
+    }
+    void noSuccess() {
+        button2Min.setEnabled(false);
+        button5Min.setEnabled(false);
+        button15Min.setEnabled(false);
+        button30Min.setEnabled(false);
+        button1Hour.setEnabled(false);
+        cancelButton.setEnabled(false);
+    }
+    void resetScreenTimeOut() {
+        Settings.System.putInt(
+                getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, defaultTimeOut);
+    }
+    void activateOnClick() {
+        activateButton.setEnabled(true);
+        activateButton.setText("Activate");
+        setScreenTimeout(defaultTimeOut);
+        button2Min.setEnabled(false);
+        button5Min.setEnabled(false);
+        button15Min.setEnabled(false);
+        button30Min.setEnabled(false);
+        button1Hour.setEnabled(false);
+        cancelButton.setEnabled(false);
+        textView.setText("Not Active");
+        activateStatus=false;
     }
 }
