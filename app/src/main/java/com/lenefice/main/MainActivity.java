@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private CountDownTimer countDownTimer;
 
     private int defaultTimeOut;
-    private boolean success, activateStatus=false;
+    private boolean success, activateStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,20 +40,30 @@ public class MainActivity extends AppCompatActivity {
         button1Hour = findViewById(R.id.button1Hour);
         cancelButton = findViewById(R.id.cancelButton);
 
-        try {
-            defaultTimeOut = Settings.System.getInt(getContentResolver(),
-                    Settings.System.SCREEN_OFF_TIMEOUT);
-        } catch (Settings.SettingNotFoundException e) {
-            e.printStackTrace();
+        askPermission();
+
+        if(success) {
+            activateButton.setEnabled(true);
+        }
+        else {
+            activateButton.setEnabled(false);
+            Toast.makeText(MainActivity.this, "Please allow permission & launch the app again", Toast.LENGTH_LONG).show();
+            finish();
         }
 
-        activateButton.setEnabled(true);
         button2Min.setEnabled(false);
         button5Min.setEnabled(false);
         button15Min.setEnabled(false);
         button30Min.setEnabled(false);
         button1Hour.setEnabled(false);
         cancelButton.setEnabled(false);
+
+        try {
+            defaultTimeOut = Settings.System.getInt(getContentResolver(),
+                    Settings.System.SCREEN_OFF_TIMEOUT);
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
 
         activateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,19 +74,7 @@ public class MainActivity extends AppCompatActivity {
                 else {
                     activateButton.setEnabled(true);
                     activateButton.setText("Deactivate");
-                    setScreenTimeout(30001);
-
-                    int tempCheck = 0;
-                    try {
-                       tempCheck = Settings.System.getInt(getContentResolver(),
-                                Settings.System.SCREEN_OFF_TIMEOUT);
-                    } catch (Settings.SettingNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    if(tempCheck!=30001) {
-                        setScreenTimeout(30001);
-                        recreate();
-                    }
+                    setScreenTimeout(30000);
 
                     button2Min.setEnabled(true);
                     button5Min.setEnabled(true);
@@ -93,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         button2Min.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setScreenTimeout(7200000);
+                setScreenTimeout(120000);
                 startTimer(120000);
                 if(success) {
                     presetTimer();
@@ -180,25 +178,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setScreenTimeout(int milliseconds) {
-
-        boolean value;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            value = Settings.System.canWrite(getApplicationContext());
-
-            if (value) {
-                Settings.System.putInt(
-                        getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, milliseconds);
-                success = true;
-            } else {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-                intent.setData(Uri.parse("package:" + getApplicationContext().getPackageName()));
-                startActivity(intent);
-            }
-        } else {
-            Settings.System.putInt(
-                    getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, milliseconds);
-            success = true;
-        }
+        Settings.System.putInt(
+                getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, milliseconds);
     }
 
     private void startTimer(int time) {
@@ -215,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
                 Settings.System.putInt(
-                        getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 30001);
+                        getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 30000);
                 textView.setText("Cool Down Timer of 35 seconds Please Wait");
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
@@ -261,5 +242,22 @@ public class MainActivity extends AppCompatActivity {
         cancelButton.setEnabled(false);
         textView.setText("Not Active");
         activateStatus=false;
+    }
+
+    void askPermission() {
+        boolean value;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            value = Settings.System.canWrite(getApplicationContext());
+
+            if (value) {
+                success = true;
+            } else {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                intent.setData(Uri.parse("package:" + getApplicationContext().getPackageName()));
+                startActivity(intent);
+            }
+        } else {
+            success = true;
+        }
     }
 }
