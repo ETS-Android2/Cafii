@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean success, activateStatus, b;
     private int defaultTimeOut;
 
-    private boolean onePlus,asus,vivo,colme,samsung,gock,miui,aosp,others;
+    private boolean onePlus,asus,vivo,colme,samsung,gock,miui,aosp,others,checkNever;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         buttonNever.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                checkNever=true;
                 startTimerOf(Integer.MAX_VALUE);
             }
         });
@@ -246,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
         setScreenTimeout(defaultTimeOut);
         textView.setText("Not Active");
         activateStatus=false;
+        checkNever=false;
     }
     void toActivate() {
         getDefaultTimeOut();
@@ -271,7 +273,12 @@ public class MainActivity extends AppCompatActivity {
                 int seconds = (int) (l / 1000) % 60;
 
                 String timeLeft = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
-                textView.setText(timeLeft);
+                if(checkNever) {
+                    textView.setText("Infinite");
+                }
+                else {
+                    textView.setText(timeLeft);
+                }
             }
 
             @Override
