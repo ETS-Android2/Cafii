@@ -9,9 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
 import android.provider.Settings;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,12 +20,16 @@ public class MainActivity extends AppCompatActivity {
 
     private Button activateButton, button2Min, button5Min,
             button10Min, button30Min, buttonNever, cancelButton;
-    private TextView textView;
-    private CountDownTimer countDownTimer;
-    private boolean success, activateStatus, b;
-    private int defaultTimeOut;
 
-    private boolean onePlus,asus,vivo,colme,samsung,gock,miui,aosp,others,checkNever;
+    private TextView textView;
+    private CountDownTimer countDownTimer,coolDownTimer;
+
+    private boolean success, activateStatus, coolDownRunning,
+            countDownRunning,onePlus,asus,vivo,colme,samsung,
+            gock,miui,aosp,others,checkNever ;
+
+    private int defaultTimeOut;
+    private long pressedTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,57 +41,75 @@ public class MainActivity extends AppCompatActivity {
         justStarted();
         detectDevice();
 
-        activateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                activateDeactivate();
-            }
+        activateButton.setOnClickListener(view -> activateDeactivate());
+
+        button2Min.setOnClickListener(view -> startTimerOf(120000));
+
+        button5Min.setOnClickListener(view -> startTimerOf(300000));
+
+        button10Min.setOnClickListener(view -> startTimerOf(600000));
+
+        button30Min.setOnClickListener(view -> startTimerOf(1800000));
+
+        buttonNever.setOnClickListener(view -> {
+            checkNever = true;
+            startTimerOf(Integer.MAX_VALUE);
         });
 
-        button2Min.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startTimerOf(120000);
-            }
-        });
-
-        button5Min.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startTimerOf(300000);
-            }
-        });
-
-        button10Min.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startTimerOf(600000);
-            }
-        });
-
-        button30Min.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startTimerOf(1800000);
-            }
-        });
-
-        buttonNever.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                checkNever=true;
-                startTimerOf(Integer.MAX_VALUE);
-            }
-        });
-
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                cancelTimer();
-            }
-        });
+        cancelButton.setOnClickListener(view -> cancelTimer());
 
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(activateStatus) {
+            Toast.makeText(getApplicationContext(), R.string.DO_NOT_REMOVE, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(activateStatus) {
+            cancelTimer();
+            Toast.makeText(MainActivity.this, R.string.TIMER_STOP, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        if(activateStatus) {
+            if (pressedTime + 2000 > System.currentTimeMillis()) {
+                super.onBackPressed();
+                cancelTimer();
+                Toast.makeText(MainActivity.this, R.string.TIMER_STOP, Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getBaseContext(), R.string.PRESS_BACK, Toast.LENGTH_LONG).show();
+            }
+        }
+        else {
+            super.onBackPressed();
+            finish();
+        }
+        pressedTime = System.currentTimeMillis();
+    }
+
+
 
     void toMapComponents() {
         textView = findViewById(R.id.textView);
@@ -122,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
             activateButton.setEnabled(true);
         } else {
             activateButton.setEnabled(false);
-            Toast.makeText(MainActivity.this, "Please allow permission & launch the app again", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, R.string.ALLOW_PERM, Toast.LENGTH_LONG).show();
             finish();
         }
     }
@@ -151,33 +171,33 @@ public class MainActivity extends AppCompatActivity {
         PackageManager packageManager = context.getPackageManager();
 
         if(appInstalledOrNot(context, ONEPLUSCLOCK) && isAppInSystemPartition(packageManager, ONEPLUSCLOCK)) {
-            onePlus=true;
+            onePlus = true;
         }
         else if(appInstalledOrNot(context, ASUS) && isAppInSystemPartition(packageManager, ASUS)) {
-            asus=true;
+            asus = true;
         }
         else if(appInstalledOrNot(context, VIVO) && isAppInSystemPartition(packageManager, VIVO)) {
-            vivo=true;
+            vivo = true;
         }
         else if(appInstalledOrNot(context, COLME) && isAppInSystemPartition(packageManager, COLME)) {
-            colme=true;
+            colme = true;
         }
         else if(appInstalledOrNot(context, SAMSUNG) && isAppInSystemPartition(packageManager, SAMSUNG)) {
-            samsung=true;
+            samsung = true;
         }
         else if(appInstalledOrNot(context, GOCK) && isAppInSystemPartition(packageManager, GOCK)) {
-            gock=true;
+            gock = true;
         }
         else if(appInstalledOrNot(context, MIAO) && isAppInSystemPartition(packageManager, MIAO)) {
             if(appInstalledOrNot(context, MIUI) && isAppInSystemPartition(packageManager, MIUI)) {
-                miui=true;
+                miui = true;
             }
             else {
-                aosp=true;
+                aosp = true;
             }
         }
         else {
-            others=true;
+            others = true;
         }
     }
 
@@ -228,31 +248,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void showOptionsAsPerDevice() {
-        if(onePlus||colme||vivo) {
+        if(onePlus || colme || vivo) {
             buttonNever.setEnabled(false);
         }
-        else if(asus||samsung||others) {
+        else if(asus || samsung || others) {
             buttonNever.setEnabled(false);
             button30Min.setEnabled(false);
         }
         else if(miui) {
             button30Min.setEnabled(false);
         }
+        else if(gock || aosp) {
+            buttonNever.setEnabled(true);
+            button30Min.setEnabled(true);
+        }
     }
 
     void toDeactivate() {
         activateButton.setEnabled(true);
-        activateButton.setText("Activate");
+        activateButton.setText(R.string.ACTIVATE);
         justStarted();
         setScreenTimeout(defaultTimeOut);
-        textView.setText("Not Active");
-        activateStatus=false;
-        checkNever=false;
+        textView.setText(R.string.NOT_ACTIVE);
+        activateStatus = false;
+        checkNever = false;
     }
     void toActivate() {
         getDefaultTimeOut();
         activateButton.setEnabled(true);
-        activateButton.setText("Deactivate");
+        activateButton.setText(R.string.DEACTIVATE);
         setScreenTimeout(30000);
         button2Min.setEnabled(true);
         button5Min.setEnabled(true);
@@ -261,20 +285,21 @@ public class MainActivity extends AppCompatActivity {
         buttonNever.setEnabled(true);
         cancelButton.setEnabled(false);
         showOptionsAsPerDevice();
-        textView.setText("Choose Your Profile :-");
-        activateStatus=true;
+        textView.setText(R.string.SELECT_PROFILE);
+        activateStatus = true;
     }
 
     private void startTimer(int time) {
+        countDownRunning = true;
         countDownTimer = new CountDownTimer(time,1000) {
             @Override
-            public void onTick(long l) {
-                int minutes = (int) (l / 1000) / 60;
-                int seconds = (int) (l / 1000) % 60;
+            public void onTick(long secondsTicking) {
+                int minutes = (int) (secondsTicking / 1000) / 60;
+                int seconds = (int) (secondsTicking / 1000) % 60;
 
                 String timeLeft = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
                 if(checkNever) {
-                    textView.setText("Infinite");
+                    textView.setText(R.string.INFINITE);
                 }
                 else {
                     textView.setText(timeLeft);
@@ -283,16 +308,22 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFinish() {
+                countDownRunning = false;
                 Settings.System.putInt(
                         getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 30000);
-                textView.setText("Cool Down Timer of 35 seconds Please Wait");
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
+                textView.setText(R.string.COOL_DOWN);
+                coolDownRunning = true;
+                coolDownTimer = new CountDownTimer(35000,1000) {
                     @Override
-                    public void run() {
-                        toDeactivate();
+                    public void onTick(long coolDownTicks) {
                     }
-                }, 35000);
+
+                    @Override
+                    public void onFinish() {
+                        toDeactivate();
+                        coolDownRunning = false;
+                    }
+                }.start();
             }
         }.start();
     }
@@ -308,6 +339,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void startTimerOf(int time) {
+        String timeString;
+
+        if(checkNever) {
+            timeString = "Timeout Set to Infinite";
+        }
+        else {
+            timeString = time/60000 + " Minutes Timer Started";
+        }
+
+        Toast.makeText(MainActivity.this, timeString, Toast.LENGTH_SHORT).show();
+
         setScreenTimeout(time);
         startTimer(time);
         if(success) {
@@ -319,7 +361,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void cancelTimer() {
-        countDownTimer.cancel();
+        if(coolDownRunning) {
+            coolDownTimer.cancel();
+        }
+        if(countDownRunning) {
+            countDownTimer.cancel();
+        }
         justStarted();
         toDeactivate();
     }
