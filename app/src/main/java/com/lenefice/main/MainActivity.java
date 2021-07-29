@@ -1,7 +1,9 @@
 package com.lenefice.main;
 
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -18,6 +20,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -29,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = "main";
 
     private Button button2Min, button5Min,
-            button10Min, button30Min, buttonNever, cancelButton;
+            button10Min, button30Min, buttonNever, cancelButton, buttonInfo;
 
     private TextView textView;
 
@@ -64,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button30Min.setOnClickListener(this);
         buttonNever.setOnClickListener(this);
         cancelButton.setOnClickListener(this);
+        buttonInfo.setOnClickListener(this);
         if(isMyServiceRunning(CafiiService.class)) {
             EventBus.getDefault().register(this);
             Log.d(TAG, "check for service running");
@@ -102,6 +107,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 buttonsAreEnabled();
                 EventBus.getDefault().unregister(this);
                 break;
+            case R.id.buttonInfo:
+                showNoticeDialog();
+                break;
         }
 
     }
@@ -122,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button30Min = findViewById(R.id.button30Min);
         buttonNever = findViewById(R.id.buttonNever);
         cancelButton = findViewById(R.id.cancelButton);
+        buttonInfo = findViewById(R.id.buttonInfo);
     }
 
     void askPermission() {
@@ -285,5 +294,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(killed.getKilled()) {
             buttonsAreEnabled();
         }
+    }
+
+    void showNoticeDialog() {
+        AlertDialog info = new AlertDialog.Builder(this)
+                . setTitle("Must Read")
+                . setMessage("Himank")
+                . setPositiveButton("Okay", new DialogInterface.OnClickListener () {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        }).create();
+        info.show();
     }
 }
