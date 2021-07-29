@@ -9,8 +9,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -18,9 +16,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
@@ -42,30 +40,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SharedPreferences.Editor editor;
     private Intent myService;
 
-    private CafiiService serviceInstance;
-    private CafiiViewModel myViewModel;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         Log.d(TAG, "activity created ");
         toMapComponents();
         askPermission();
         detectDevice();
-        myViewModel = new ViewModelProvider(this).get(CafiiViewModel.class);
-        setObservers();
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        buttonsAreEnabled();
         Log.d(TAG, "Activity started");
-        myViewModel.setcountDT(true);
         button2Min.setOnClickListener(this);
         button5Min.setOnClickListener(this);
         button10Min.setOnClickListener(this);
@@ -73,28 +63,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonNever.setOnClickListener(this);
         cancelButton.setOnClickListener(this);
         if(isMyServiceRunning(CafiiService.class)) {
+            EventBus.getDefault().register(this);
             Log.d(TAG, "check for service running");
             myService = new Intent(this, CafiiService.class);
-            bindService(myService, myViewModel.getServiceConnection(),Context.BIND_AUTO_CREATE);
             buttonsAreDisabled();
         }
         else {
 
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d(TAG, "Activity stopped");
-        /*if(myViewModel.getBinder()!=null) {
-            Log.d(TAG, "unbind");
-            unbindService(myViewModel.getServiceConnection());
-        }*/
-
-        if(isMyServiceRunning(CafiiService.class)) {
-            Log.d(TAG, "unbind");
-            unbindService(myViewModel.getServiceConnection());
         }
     }
 
@@ -120,8 +95,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.buttonNever:
                 sendDataStartService(Integer.MAX_VALUE);
                 break;
+            case R.id.cancelButton:
+                EventBus.getDefault().post(new OnCancelEvent(true));
+                buttonsAreEnabled();
+                EventBus.getDefault().unregister(this);
+                break;
         }
 
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(isMyServiceRunning(CafiiService.class))
+        EventBus.getDefault().unregister(this);
     }
 
     void toMapComponents() {
@@ -254,6 +241,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     void buttonsAreEnabled() {
+        textView.setText("Click the desired preset :- ");
         cancelButton.setEnabled(false);
         button2Min.setEnabled(true);
         button5Min.setEnabled(true);
@@ -270,12 +258,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         myService = new Intent(this, CafiiService.class);
         editor.putInt("timer",time);
         editor.commit();
+        EventBus.getDefault().register(this);
         startService(myService);
         buttonsAreDisabled();
-        bindService(myService, myViewModel.getServiceConnection(),Context.BIND_AUTO_CREATE);
-    }
-
-    void setObservers() {
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -286,5 +271,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         return false;
+    }
+
+    @Subscribe
+    public void onEventStart(EventTimer object) {
+        textView.setText(object.getCurrentTime());
+    }
+
+    @Subscribe
+    public void onAutoKilled(AutoKilled killed) {
+        if(killed.getKilled()) {
+            buttonsAreEnabled();
+        }
     }
 }

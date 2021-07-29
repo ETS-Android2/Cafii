@@ -6,7 +6,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Binder;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -19,6 +18,9 @@ import java.util.Locale;
 
 import static com.lenefice.main.AppNotification.CHANNEL_ID;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 public class CafiiService extends Service {
 
     private static final String TAG = "service";
@@ -30,28 +32,16 @@ public class CafiiService extends Service {
 
     private String timeLeft;
 
-    private boolean isCountDTRunning, isCoolDTRunning;
+    private boolean isCountDTRunning, isCoolDTRunning, isCancelled;
 
-    private final IBinder cafiiBinder = new CafiiBinder();
-
-    public class CafiiBinder extends Binder {
-
-        CafiiService getService() {
-            return CafiiService.this;
-        }
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return cafiiBinder;
-    }
+    private int newScreenTimeOut;
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "service created");
         getDefaultTimeOut();
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -59,10 +49,17 @@ public class CafiiService extends Service {
         Log.d(TAG, "service started");
         createNotification();
         sharedPreferences = getSharedPreferences("Timer Presets", Context.MODE_PRIVATE);
-        int newScreenTimeOut = sharedPreferences.getInt("timer",0);
-        setTimeOutAndTimer(newScreenTimeOut);
+        newScreenTimeOut = sharedPreferences.getInt("timer",0);
+        setTimeOut(newScreenTimeOut);
+        setTimer(newScreenTimeOut);
         return START_STICKY;
 
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     void getDefaultTimeOut() {
@@ -90,19 +87,29 @@ public class CafiiService extends Service {
 
     }
 
-    void setTimeOutAndTimer(int milliseconds) {
+    void setTimeOut(int milliseconds) {
         Settings.System.putInt(
                 getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, milliseconds);
+    }
+
+    void setTimer(int milliseconds) {
 
         isCountDTRunning = true;
         countDownTimer = new CountDownTimer(milliseconds,1000) {
             @Override
             public void onTick(long secondsTicking) {
                 Log.d(TAG, "timer"+secondsTicking);
-                int minutes = (int) (secondsTicking / 1000) / 60;
-                int seconds = (int) (secondsTicking / 1000) % 60;
+                if(newScreenTimeOut!=Integer.MAX_VALUE) {
+                    int minutes = (int) (secondsTicking / 1000) / 60;
+                    int seconds = (int) (secondsTicking / 1000) % 60;
 
-                timeLeft = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+                    timeLeft = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+                }
+                else {
+                    timeLeft = "infinity";
+                }
+
+                EventBus.getDefault().post(new EventTimer(timeLeft));
             }
 
             @Override
@@ -114,19 +121,38 @@ public class CafiiService extends Service {
                 coolDownTimer = new CountDownTimer(35000,1000) {
                     @Override
                     public void onTick(long coolDownTicks) {
+                        EventBus.getDefault().post(new EventTimer("Cool Down Timer of 35 seconds is running Please wait..."));
                     }
-
                     @Override
                     public void onFinish() {
                         isCoolDTRunning = false;
+                        EventBus.getDefault().post(new AutoKilled(true));
+                        endOfService();
                     }
                 }.start();
             }
         }.start();
     }
 
-    public String getCTD() {
-        return timeLeft;
+    void endOfService() {
+        setTimeOut(defaultTimeOut);
+        stopForeground(true);
+        EventBus.getDefault().unregister(this);
+        stopSelf();
+    }
+
+    @Subscribe
+    public void killService(OnCancelEvent event) {
+        isCancelled=event.getValue();
+        if(isCancelled) {
+            if (isCountDTRunning) {
+                countDownTimer.cancel();
+            }
+            if (isCoolDTRunning) {
+                coolDownTimer.cancel();
+            }
+            endOfService();
+        }
     }
 
 }
