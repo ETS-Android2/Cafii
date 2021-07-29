@@ -8,6 +8,6 @@
     <string name="COOL_DOWN">Cool Down Timer of 35 seconds please wait </string>
     <string name="TIMER_STOP">Timer has been Stopped</string>
     <string name="DO_NOT_REMOVE">Do not remove from recents else Timer will stop</string>
-    <string name="PRESS_BACK">Pressing back again will stop the Timer & exit</string>
-    <string name="ALLOW_PERM">Please allow permission & launch the app again</string>
+    <string name="PRESS_BACK">Pressing back again will stop the Timer and exit</string>
+    <string name="ALLOW_PERM">Please allow permission and launch the app again</string>
 </resources>

@@ -1,119 +1,132 @@
 package com.lenefice.main;
 
-import androidx.appcompat.app.AppCompatActivity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+
 import java.util.List;
-import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
 
-    private Button activateButton, button2Min, button5Min,
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private static final String TAG = "main";
+
+    private Button button2Min, button5Min,
             button10Min, button30Min, buttonNever, cancelButton;
 
     private TextView textView;
-    private CountDownTimer countDownTimer,coolDownTimer;
 
-    private boolean success, activateStatus, coolDownRunning,
-            countDownRunning,onePlus,asus,vivo,colme,samsung,
-            gock,miui,aosp,others,checkNever ;
+    private boolean success,onePlus,asus,vivo,colme,samsung,
+            gock,miui,aosp,others;
 
-    private int defaultTimeOut;
-    private long pressedTime;
+
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
+    private Intent myService;
+
+    private CafiiService serviceInstance;
+    private CafiiViewModel myViewModel;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Log.d(TAG, "activity created ");
         toMapComponents();
         askPermission();
-        justStarted();
         detectDevice();
-
-        activateButton.setOnClickListener(view -> activateDeactivate());
-
-        button2Min.setOnClickListener(view -> startTimerOf(120000));
-
-        button5Min.setOnClickListener(view -> startTimerOf(300000));
-
-        button10Min.setOnClickListener(view -> startTimerOf(600000));
-
-        button30Min.setOnClickListener(view -> startTimerOf(1800000));
-
-        buttonNever.setOnClickListener(view -> {
-            checkNever = true;
-            startTimerOf(Integer.MAX_VALUE);
-        });
-
-        cancelButton.setOnClickListener(view -> cancelTimer());
+        myViewModel = new ViewModelProvider(this).get(CafiiViewModel.class);
+        setObservers();
 
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        Log.d(TAG, "Activity started");
+        myViewModel.setcountDT(true);
+        button2Min.setOnClickListener(this);
+        button5Min.setOnClickListener(this);
+        button10Min.setOnClickListener(this);
+        button30Min.setOnClickListener(this);
+        buttonNever.setOnClickListener(this);
+        cancelButton.setOnClickListener(this);
+        if(isMyServiceRunning(CafiiService.class)) {
+            Log.d(TAG, "check for service running");
+            myService = new Intent(this, CafiiService.class);
+            bindService(myService, myViewModel.getServiceConnection(),Context.BIND_AUTO_CREATE);
+            buttonsAreDisabled();
+        }
+        else {
+
+        }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
     @Override
     protected void onStop() {
         super.onStop();
-        if(activateStatus) {
-            Toast.makeText(getApplicationContext(), R.string.DO_NOT_REMOVE, Toast.LENGTH_LONG).show();
+        Log.d(TAG, "Activity stopped");
+        /*if(myViewModel.getBinder()!=null) {
+            Log.d(TAG, "unbind");
+            unbindService(myViewModel.getServiceConnection());
+        }*/
+
+        if(isMyServiceRunning(CafiiService.class)) {
+            Log.d(TAG, "unbind");
+            unbindService(myViewModel.getServiceConnection());
         }
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if(activateStatus) {
-            cancelTimer();
-            Toast.makeText(MainActivity.this, R.string.TIMER_STOP, Toast.LENGTH_LONG).show();
+    public void onClick(View view) {
+        Log.d(TAG, "onClick: ");
+        switch(view.getId()) {
+            case R.id.button2Min:
+                sendDataStartService(120000);
+                break;
+
+            case R.id.button5Min:
+                sendDataStartService(300000);
+                break;
+
+            case R.id.button10Min:
+                sendDataStartService(600000);
+                break;
+
+            case R.id.button30Min:
+                sendDataStartService(1800000);
+                break;
+            case R.id.buttonNever:
+                sendDataStartService(Integer.MAX_VALUE);
+                break;
         }
+
     }
-
-    @Override
-    public void onBackPressed()
-    {
-        if(activateStatus) {
-            if (pressedTime + 2000 > System.currentTimeMillis()) {
-                super.onBackPressed();
-                cancelTimer();
-                Toast.makeText(MainActivity.this, R.string.TIMER_STOP, Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(getBaseContext(), R.string.PRESS_BACK, Toast.LENGTH_LONG).show();
-            }
-        }
-        else {
-            super.onBackPressed();
-            finish();
-        }
-        pressedTime = System.currentTimeMillis();
-    }
-
-
 
     void toMapComponents() {
+        Log.d(TAG, "toMapComponents: ");
         textView = findViewById(R.id.textView);
-        activateButton = findViewById(R.id.activateButton);
         button2Min = findViewById(R.id.button2Min);
         button5Min = findViewById(R.id.button5Min);
         button10Min = findViewById(R.id.button10Min);
@@ -123,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void askPermission() {
+        Log.d(TAG, "askPermission: ");
         boolean value;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             value = Settings.System.canWrite(getApplicationContext());
@@ -139,21 +153,33 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (success) {
-            activateButton.setEnabled(true);
         } else {
-            activateButton.setEnabled(false);
             Toast.makeText(MainActivity.this, R.string.ALLOW_PERM, Toast.LENGTH_LONG).show();
             finish();
         }
     }
 
-    void justStarted() {
-        button2Min.setEnabled(false);
-        button5Min.setEnabled(false);
-        button10Min.setEnabled(false);
-        button30Min.setEnabled(false);
-        buttonNever.setEnabled(false);
-        cancelButton.setEnabled(false);
+    public static boolean appInstalledOrNot(Context context, String uri) {
+        PackageManager pm = context.getPackageManager();
+        List<PackageInfo> packageInfoList = pm.getInstalledPackages(PackageManager.GET_ACTIVITIES);
+        if (packageInfoList != null) {
+            for (PackageInfo packageInfo : packageInfoList) {
+                String packageName = packageInfo.packageName;
+                if (packageName != null && packageName.equals(uri)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean isAppInSystemPartition(PackageManager pm, String packageName) {
+        try {
+            ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
+            return ((ai.flags & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0);
+        }catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 
     void detectDevice() {
@@ -201,50 +227,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static boolean appInstalledOrNot(Context context, String uri) {
-        PackageManager pm = context.getPackageManager();
-        List<PackageInfo> packageInfoList = pm.getInstalledPackages(PackageManager.GET_ACTIVITIES);
-        if (packageInfoList != null) {
-            for (PackageInfo packageInfo : packageInfoList) {
-                String packageName = packageInfo.packageName;
-                if (packageName != null && packageName.equals(uri)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public static boolean isAppInSystemPartition(PackageManager pm, String packageName) {
-        try {
-            ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
-            return ((ai.flags & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0);
-        }catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
-    }
-
-    void getDefaultTimeOut() {
-        try {
-            defaultTimeOut = Settings.System.getInt(getContentResolver(),
-                    Settings.System.SCREEN_OFF_TIMEOUT);
-        } catch (Settings.SettingNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    void activateDeactivate() {
-        if(activateStatus) {
-            toDeactivate();
-        }
-        else {
-            toActivate();
-        }
-    }
-
-    private void setScreenTimeout(int milliseconds) {
-        Settings.System.putInt(
-                getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, milliseconds);
+    void buttonsAreDisabled() {
+        button2Min.setEnabled(false);
+        button5Min.setEnabled(false);
+        button10Min.setEnabled(false);
+        button30Min.setEnabled(false);
+        buttonNever.setEnabled(false);
+        cancelButton.setEnabled(true);
     }
 
     void showOptionsAsPerDevice() {
@@ -264,110 +253,38 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    void toDeactivate() {
-        activateButton.setEnabled(true);
-        activateButton.setText(R.string.ACTIVATE);
-        justStarted();
-        setScreenTimeout(defaultTimeOut);
-        textView.setText(R.string.NOT_ACTIVE);
-        activateStatus = false;
-        checkNever = false;
-    }
-    void toActivate() {
-        getDefaultTimeOut();
-        activateButton.setEnabled(true);
-        activateButton.setText(R.string.DEACTIVATE);
-        setScreenTimeout(30000);
+    void buttonsAreEnabled() {
+        cancelButton.setEnabled(false);
         button2Min.setEnabled(true);
         button5Min.setEnabled(true);
         button10Min.setEnabled(true);
         button30Min.setEnabled(true);
         buttonNever.setEnabled(true);
-        cancelButton.setEnabled(false);
         showOptionsAsPerDevice();
-        textView.setText(R.string.SELECT_PROFILE);
-        activateStatus = true;
     }
 
-    private void startTimer(int time) {
-        countDownRunning = true;
-        countDownTimer = new CountDownTimer(time,1000) {
-            @Override
-            public void onTick(long secondsTicking) {
-                int minutes = (int) (secondsTicking / 1000) / 60;
-                int seconds = (int) (secondsTicking / 1000) % 60;
+    void sendDataStartService(int time) {
+        Log.d(TAG, "sendDataStartService: ");
+        sharedPreferences = getSharedPreferences("Timer Presets",Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+        myService = new Intent(this, CafiiService.class);
+        editor.putInt("timer",time);
+        editor.commit();
+        startService(myService);
+        buttonsAreDisabled();
+        bindService(myService, myViewModel.getServiceConnection(),Context.BIND_AUTO_CREATE);
+    }
 
-                String timeLeft = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
-                if(checkNever) {
-                    textView.setText(R.string.INFINITE);
-                }
-                else {
-                    textView.setText(timeLeft);
-                }
+    void setObservers() {
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
             }
-
-            @Override
-            public void onFinish() {
-                countDownRunning = false;
-                Settings.System.putInt(
-                        getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 30000);
-                textView.setText(R.string.COOL_DOWN);
-                coolDownRunning = true;
-                coolDownTimer = new CountDownTimer(35000,1000) {
-                    @Override
-                    public void onTick(long coolDownTicks) {
-                    }
-
-                    @Override
-                    public void onFinish() {
-                        toDeactivate();
-                        coolDownRunning = false;
-                    }
-                }.start();
-            }
-        }.start();
-    }
-
-    void asTimerStarted() {
-        activateButton.setEnabled(false);
-        button2Min.setEnabled(false);
-        button5Min.setEnabled(false);
-        button10Min.setEnabled(false);
-        button30Min.setEnabled(false);
-        buttonNever.setEnabled(false);
-        cancelButton.setEnabled(true);
-    }
-
-    void startTimerOf(int time) {
-        String timeString;
-
-        if(checkNever) {
-            timeString = "Timeout Set to Infinite";
         }
-        else {
-            timeString = time/60000 + " Minutes Timer Started";
-        }
-
-        Toast.makeText(MainActivity.this, timeString, Toast.LENGTH_SHORT).show();
-
-        setScreenTimeout(time);
-        startTimer(time);
-        if(success) {
-            asTimerStarted();
-        }
-        else {
-            justStarted();
-        }
-    }
-
-    void cancelTimer() {
-        if(coolDownRunning) {
-            coolDownTimer.cancel();
-        }
-        if(countDownRunning) {
-            countDownTimer.cancel();
-        }
-        justStarted();
-        toDeactivate();
+        return false;
     }
 }
