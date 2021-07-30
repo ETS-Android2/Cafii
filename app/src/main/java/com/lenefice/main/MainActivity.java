@@ -1,9 +1,9 @@
 package com.lenefice.main;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -13,36 +13,29 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-
 import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private static final String TAG = "main";
-
     private Button button2Min, button5Min,
-            button10Min, button30Min, buttonNever, cancelButton, buttonInfo;
+            button10Min, button30Min, buttonNever, cancelButton;
+
+    private FloatingActionButton buttonInfo;
 
     private TextView textView;
 
     private boolean success,onePlus,asus,vivo,colme,samsung,
             gock,miui,aosp,others;
 
-
-    private SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor editor;
     private Intent myService;
 
     @Override
@@ -50,18 +43,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d(TAG, "activity created ");
+
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         toMapComponents();
         askPermission();
         detectDevice();
+
     }
 
     @Override
     protected void onStart() {
+
         super.onStart();
+
         buttonsAreEnabled();
-        Log.d(TAG, "Activity started");
         button2Min.setOnClickListener(this);
         button5Min.setOnClickListener(this);
         button10Min.setOnClickListener(this);
@@ -69,21 +64,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonNever.setOnClickListener(this);
         cancelButton.setOnClickListener(this);
         buttonInfo.setOnClickListener(this);
-        if(isMyServiceRunning(CafiiService.class)) {
+
+        if(isMyServiceRunning()) {
+
             EventBus.getDefault().register(this);
-            Log.d(TAG, "check for service running");
             myService = new Intent(this, CafiiService.class);
             buttonsAreDisabled();
-        }
-        else {
 
         }
+
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View view) {
-        Log.d(TAG, "onClick: ");
+
         switch(view.getId()) {
+
             case R.id.button2Min:
                 sendDataStartService(120000);
                 break;
@@ -99,30 +96,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.button30Min:
                 sendDataStartService(1800000);
                 break;
+
             case R.id.buttonNever:
                 sendDataStartService(Integer.MAX_VALUE);
                 break;
+
             case R.id.cancelButton:
                 EventBus.getDefault().post(new OnCancelEvent(true));
                 buttonsAreEnabled();
                 EventBus.getDefault().unregister(this);
                 break;
+
             case R.id.buttonInfo:
                 showNoticeDialog();
                 break;
+
         }
 
     }
 
     @Override
     public void onStop() {
+
         super.onStop();
-        if(isMyServiceRunning(CafiiService.class))
+
+        if(isMyServiceRunning())
         EventBus.getDefault().unregister(this);
+
     }
 
-    void toMapComponents() {
-        Log.d(TAG, "toMapComponents: ");
+    private void toMapComponents() {
+
         textView = findViewById(R.id.textView);
         button2Min = findViewById(R.id.button2Min);
         button5Min = findViewById(R.id.button5Min);
@@ -131,10 +135,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonNever = findViewById(R.id.buttonNever);
         cancelButton = findViewById(R.id.cancelButton);
         buttonInfo = findViewById(R.id.buttonInfo);
+
     }
 
-    void askPermission() {
-        Log.d(TAG, "askPermission: ");
+    private void askPermission() {
+
         boolean value;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             value = Settings.System.canWrite(getApplicationContext());
@@ -146,18 +151,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent.setData(Uri.parse("package:" + getApplicationContext().getPackageName()));
                 startActivity(intent);
             }
-        } else {
+        }
+        else {
             success = true;
         }
 
-        if (success) {
-        } else {
+        if(!success) {
             Toast.makeText(MainActivity.this, R.string.ALLOW_PERM, Toast.LENGTH_LONG).show();
             finish();
         }
+
     }
 
-    public static boolean appInstalledOrNot(Context context, String uri) {
+    private static boolean appInstalledOrNot(Context context, String uri) {
+
         PackageManager pm = context.getPackageManager();
         List<PackageInfo> packageInfoList = pm.getInstalledPackages(PackageManager.GET_ACTIVITIES);
         if (packageInfoList != null) {
@@ -169,18 +176,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         return false;
+
     }
 
-    public static boolean isAppInSystemPartition(PackageManager pm, String packageName) {
+    private static boolean isAppInSystemPartition(PackageManager pm, String packageName) {
+
         try {
             ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
             return ((ai.flags & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0);
         }catch (PackageManager.NameNotFoundException e) {
             return false;
         }
+
     }
 
-    void detectDevice() {
+    private void detectDevice() {
 
         final String ONEPLUSCLOCK = "com.oneplus.deskclock";
         final String ASUS = "com.asus.deskclock";
@@ -223,18 +233,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         else {
             others = true;
         }
+
     }
 
-    void buttonsAreDisabled() {
+    private void buttonsAreDisabled() {
+
         button2Min.setEnabled(false);
         button5Min.setEnabled(false);
         button10Min.setEnabled(false);
         button30Min.setEnabled(false);
         buttonNever.setEnabled(false);
         cancelButton.setEnabled(true);
+
     }
 
-    void showOptionsAsPerDevice() {
+    private void showOptionsAsPerDevice() {
+
         if(onePlus || colme || vivo) {
             buttonNever.setEnabled(false);
         }
@@ -249,9 +263,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             buttonNever.setEnabled(true);
             button30Min.setEnabled(true);
         }
+
     }
 
-    void buttonsAreEnabled() {
+    private void buttonsAreEnabled() {
+
         textView.setText("Click the desired preset :- ");
         cancelButton.setEnabled(false);
         button2Min.setEnabled(true);
@@ -260,53 +276,62 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button30Min.setEnabled(true);
         buttonNever.setEnabled(true);
         showOptionsAsPerDevice();
+
     }
 
-    void sendDataStartService(int time) {
-        Log.d(TAG, "sendDataStartService: ");
+    private void sendDataStartService(int time) {
+
+        SharedPreferences sharedPreferences;
+        SharedPreferences.Editor editor;
         sharedPreferences = getSharedPreferences("Timer Presets",Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
+
         myService = new Intent(this, CafiiService.class);
         editor.putInt("timer",time);
-        editor.commit();
+        editor.apply();
+
         EventBus.getDefault().register(this);
         startService(myService);
         buttonsAreDisabled();
+
     }
 
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
+    private boolean isMyServiceRunning() {
+
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
+            if (CafiiService.class.getName().equals(service.service.getClassName())) {
                 return true;
             }
         }
         return false;
+
     }
 
     @Subscribe
     public void onEventStart(EventTimer object) {
+
         textView.setText(object.getCurrentTime());
+
     }
 
     @Subscribe
     public void onAutoKilled(AutoKilled killed) {
+
         if(killed.getKilled()) {
             buttonsAreEnabled();
         }
+
     }
 
-    void showNoticeDialog() {
+    private void showNoticeDialog() {
+
         AlertDialog info = new AlertDialog.Builder(this)
-                . setTitle("Must Read")
-                . setMessage("Himank")
-                . setPositiveButton("Okay", new DialogInterface.OnClickListener () {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        }).create();
+                .setTitle("Must Read")
+                .setMessage("Himank")
+                .setPositiveButton("Okay", (dialog, which) -> dialog.dismiss()).create();
         info.show();
+
     }
+
 }
