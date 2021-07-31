@@ -1,15 +1,26 @@
 <resources>
+    <!-- Strings for Main Activity & Service -->
     <string name="app_name">Cafii</string>
-    <string name="SELECT_PROFILE">Tap on desired Profile :-</string>
+    <string name="SELECT_PROFILE">Tap on desired preset :- </string>
     <string name="TIMER_STOP">Timer has been Stopped</string>
     <string name="PRESS_BACK">Pressing back again will stop the Timer and exit</string>
     <string name="ALLOW_PERM">Please allow permission and launch the app again</string>
-    <string name="UNDERSTAND">I Understand</string>
-    <string name="INFO">\n\nWelcome\n\nHere are some tips for using our App :-\n\n-> It is
-        recommended to whitelist the App from Battery Optimization, also allow it to run in
-    background.\n\n-> If any Profile is activated do not force stop and it is recommended not
-     to remove from recents since some OS can kill the App instantly.\n\n-> It may happen that
-     30 min and never profile is not available or behave ambiguously in your device due to some
-        restrictions.\n\nThanks for using our App ❤\n\n\nDevelopers -\n\t\t\t\t\t\t\t\t\t\t\t\t\tIshaan Kaushal &amp; Himank Bose\n</string>
     <string name="INFOTITLE">Cafii - The Screen Time Genii</string>
+
+    <string name="INFO">\nWelcome\n\nHere are some tips for using our App :-\n\n-> It is
+        recommended to whitelist the App from Battery Optimization, also allow it to run in
+    background.\n\n-> If any Preset is activated do not force stop and it is recommended not
+     to remove from recents since some OS can kill the App instantly.\n\n-> It may happen that
+     30 min and never preset is not available or behave ambiguously in your device due to some
+        restrictions.\n\nThanks for using our App ❤\n\n\nDevelopers -\n\t\t\t\t\t\t\t\t\t\t\t\t\tIshaan Kaushal &amp; Himank Bose
+    </string>
+
+    <!-- String for activity_main.xml -->
+    <string name="MIN2">2 Min</string>
+    <string name="MIN5">5 Min</string>
+    <string name="MIN10">10 Min</string>
+    <string name="MIN30">30 Min</string>
+    <string name="NEVER">Never</string>
+    <string name="CANCEL">Cancel</string>
+
 </resources>

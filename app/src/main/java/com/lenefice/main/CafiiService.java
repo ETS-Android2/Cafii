@@ -20,11 +20,9 @@ public class CafiiService extends Service {
 
     private int defaultTimeOut, newScreenTimeOut;
 
-    private SharedPreferences sharedPreferences;
-
     private CountDownTimer countDownTimer, coolDownTimer;
 
-    private String timeLeft, toastNotify;;
+    private String timeLeft, toastNotify;
 
     private boolean isCountDTRunning, isCoolDTRunning;
 
@@ -34,7 +32,7 @@ public class CafiiService extends Service {
         super.onCreate();
         getDefaultTimeOut();
 
-        sharedPreferences = getSharedPreferences("Timer Presets", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("Timer Presets", Context.MODE_PRIVATE);
         newScreenTimeOut = sharedPreferences.getInt("timer",0);
 
     }
@@ -125,9 +123,9 @@ public class CafiiService extends Service {
     private void createNotification() {
 
         Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,0,notificationIntent,0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
-        Notification foregroundNotification = new NotificationCompat.Builder(this,CHANNEL_ID)
+        Notification foregroundNotification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Cafii Service")
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentIntent(pendingIntent)
@@ -135,7 +133,7 @@ public class CafiiService extends Service {
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(toastNotify + " Please do not force stop or remove from recents"))
                 .build();
 
-        startForeground(1,foregroundNotification);
+        startForeground(1, foregroundNotification);
 
     }
 
@@ -153,14 +151,14 @@ public class CafiiService extends Service {
             @Override
             public void onTick(long secondsTicking) {
 
-                if(newScreenTimeOut!=Integer.MAX_VALUE) {
+                if(newScreenTimeOut != Integer.MAX_VALUE) {
                     int minutes = (int) (secondsTicking / 1000) / 60;
                     int seconds = (int) (secondsTicking / 1000) % 60;
 
                     timeLeft = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
                 }
                 else {
-                    timeLeft = "infinity";
+                    timeLeft = "Infinity";
                 }
 
                 EventBus.getDefault().post(new EventTimer(timeLeft));
@@ -168,23 +166,29 @@ public class CafiiService extends Service {
 
             @Override
             public void onFinish() {
+
                 isCountDTRunning = false;
                 Settings.System.putInt(
                         getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 30000);
+
                 isCoolDTRunning = true;
                 coolDownTimer = new CountDownTimer(35000,1000) {
+
                     @Override
                     public void onTick(long coolDownTicks) {
                         EventBus.getDefault().post(new EventTimer("Cool Down Timer of 35 seconds is running Please wait..."));
                     }
+
                     @Override
                     public void onFinish() {
                         isCoolDTRunning = false;
                         EventBus.getDefault().post(new AutoKilled(true));
                         stopSelf();
                     }
+
                 }.start();
             }
+
         }.start();
     }
 

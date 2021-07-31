@@ -30,8 +30,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private TextView textView;
 
-    private boolean success,onePlus,asus,vivo,colme,samsung,
-            gock,miui,aosp,others;
+    private boolean success, onePlus, asus, vivo, colme, samsung,
+            gock, miui, aosp, huawei, others;
 
     private Intent myService;
 
@@ -115,10 +115,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onStop() {
+    protected void onStop() {
 
         super.onStop();
-        Toast.makeText(getApplicationContext(), "Please do not remove from recents", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Please do not remove from recents", Toast.LENGTH_SHORT).show();
 
         if(isMyServiceRunning())
         EventBus.getDefault().unregister(this);
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try {
             ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
             return ((ai.flags & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0);
-        }catch (PackageManager.NameNotFoundException e) {
+        } catch (PackageManager.NameNotFoundException e) {
             return false;
         }
 
@@ -192,14 +192,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void detectDevice() {
 
-        final String ONEPLUSCLOCK = "com.oneplus.deskclock";
-        final String ASUS = "com.asus.deskclock";
-        final String VIVO = "com.android.BBKClock";
-        final String COLME = "com.coloros.alarmclock";
-        final String SAMSUNG = "com.sec.android.app.clockpackage";
-        final String GOCK = "com.google.android.deskclock";
-        final String MIAO = "com.android.deskclock";
-        final String MIUI = "com.miui.gallery";
+        final String ONEPLUSCLOCK = "com.oneplus.deskclock",
+                ASUS = "com.asus.deskclock",
+                VIVO = "com.android.BBKClock",
+                COLME = "com.coloros.alarmclock",
+                SAMSUNG = "com.sec.android.app.clockpackage",
+                GOCK = "com.google.android.deskclock",
+                MIAO = "com.android.deskclock",
+                MIUI = "com.miui.gallery",
+                HUAWEI = "com.huawei.appmarket";
 
         Context context = getApplicationContext();
         PackageManager packageManager = context.getPackageManager();
@@ -225,6 +226,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         else if(appInstalledOrNot(context, MIAO) && isAppInSystemPartition(packageManager, MIAO)) {
             if(appInstalledOrNot(context, MIUI) && isAppInSystemPartition(packageManager, MIUI)) {
                 miui = true;
+            }
+            else if(appInstalledOrNot(context, HUAWEI) && isAppInSystemPartition(packageManager, HUAWEI)) {
+                huawei = true;
             }
             else {
                 aosp = true;
@@ -258,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             buttonNever.setEnabled(false);
             buttonNever.setTextColor(getApplication().getResources().getColor(R.color.grey));
         }
-        else if(asus || samsung || others) {
+        else if(asus || samsung || huawei || others) {
             buttonNever.setEnabled(false);
             buttonNever.setTextColor(getApplication().getResources().getColor(R.color.grey));
             button30Min.setEnabled(false);
@@ -281,16 +285,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         textView.setText(R.string.SELECT_PROFILE);
         cancelButton.setVisibility(View.INVISIBLE);
+
         button2Min.setEnabled(true);
         button2Min.setTextColor(getApplication().getResources().getColor(R.color.white));
+
         button5Min.setEnabled(true);
         button5Min.setTextColor(getApplication().getResources().getColor(R.color.white));
+
         button10Min.setEnabled(true);
         button10Min.setTextColor(getApplication().getResources().getColor(R.color.white));
+
         button30Min.setEnabled(true);
         button30Min.setTextColor(getApplication().getResources().getColor(R.color.white));
+
         buttonNever.setEnabled(true);
         buttonNever.setTextColor(getApplication().getResources().getColor(R.color.white));
+
         showOptionsAsPerDevice();
 
     }
@@ -345,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         AlertDialog info = new AlertDialog.Builder(this)
                 .setTitle(R.string.INFOTITLE)
                 .setMessage(R.string.INFO)
-                .setPositiveButton(R.string.UNDERSTAND, (dialog, which) -> dialog.dismiss()).create();
+                .create();
         info.show();
 
     }

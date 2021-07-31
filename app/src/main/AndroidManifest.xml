@@ -16,15 +16,14 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Cafii"
+        android:theme="@style/Default_Theme"
         tools:ignore="AllowBackup">
         <activity android:name=".MainActivity"
+            android:exported="true"
             android:excludeFromRecents="true"
-            android:noHistory= "true"
-            android:theme="@style/Default_Theme">
+            android:noHistory= "true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
