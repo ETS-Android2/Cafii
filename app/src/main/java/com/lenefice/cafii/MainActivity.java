@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             button10Min, button30Min, buttonNever, cancelButton, buttonInfo;
 
     private TextView textView;
+    private long pressedTime;
 
     private boolean success, onePlus, asus, vivo, colme, samsung,
             gock, miui, aosp, huawei, others;
@@ -101,8 +102,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.cancelButton:
-                EventBus.getDefault().unregister(this);
-                stopService(myService);
+                cancelTriggered();
                 buttonsAreEnabled();
                 break;
 
@@ -118,10 +118,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onStop() {
 
         super.onStop();
-        Toast.makeText(getApplicationContext(), "Please do not remove from recents", Toast.LENGTH_SHORT).show();
 
-        if(isMyServiceRunning())
-        EventBus.getDefault().unregister(this);
+        if(isMyServiceRunning()) {
+            Toast.makeText(getApplicationContext(), "Please do not remove from recents", Toast.LENGTH_SHORT).show();
+            EventBus.getDefault().unregister(this);
+        }
+
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if(isMyServiceRunning()) {
+            if (pressedTime + 2000 > System.currentTimeMillis()) {
+                super.onBackPressed();
+                cancelTriggered();
+                Toast.makeText(MainActivity.this, R.string.TIMER_STOP, Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getBaseContext(), R.string.PRESS_BACK, Toast.LENGTH_LONG).show();
+            }
+        }
+        else {
+            super.onBackPressed();
+            finish();
+        }
+        pressedTime = System.currentTimeMillis();
 
     }
 
@@ -357,6 +378,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setMessage(R.string.INFO)
                 .create();
         info.show();
+
+    }
+
+    private void cancelTriggered() {
+
+        EventBus.getDefault().unregister(this);
+        stopService(myService);
 
     }
 

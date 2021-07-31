@@ -12,7 +12,9 @@
     background.\n\n-> If any Preset is activated do not force stop and it is recommended not
      to remove from recents since some OS can kill the App instantly.\n\n-> It may happen that
      30 min and never preset is not available or behave ambiguously in your device due to some
-        restrictions.\n\nThanks for using our App ❤\n\n\nDevelopers -\n\t\t\t\t\t\t\t\t\t\t\t\t\tIshaan Kaushal &amp; Himank Bose
+        restrictions.\n\n-> Want to stop the App and cannot see in recents? Just press the back
+        button and you are done.\n\nThanks for using our App ❤\n\n\nDevelopers -\n\t\t\t\t\t
+        \t\t\t\t\t\t\t\tIshaan Kaushal &amp; Himank Bose
     </string>
 
     <!-- String for activity_main.xml -->
