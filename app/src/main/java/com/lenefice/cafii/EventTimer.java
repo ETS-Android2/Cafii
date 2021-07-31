@@ -1,6 +1,7 @@
-package com.lenefice.main;
+package com.lenefice.cafii;
 
 public class EventTimer {
+
     private final String currentTime;
 
     public EventTimer(String currentTime) {
@@ -10,4 +11,5 @@ public class EventTimer {
     public String getCurrentTime() {
         return currentTime;
     }
+
 }

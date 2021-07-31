@@ -1,6 +1,7 @@
-package com.lenefice.main;
+package com.lenefice.cafii;
 
 public class AutoKilled {
+
     private final boolean killed;
 
     public AutoKilled(Boolean killed) {
@@ -10,4 +11,5 @@ public class AutoKilled {
     public boolean getKilled() {
         return killed;
     }
+
 }

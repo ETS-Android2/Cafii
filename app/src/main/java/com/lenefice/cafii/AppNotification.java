@@ -1,4 +1,4 @@
-package com.lenefice.main;
+package com.lenefice.cafii;
 
 import android.app.Application;
 import android.app.NotificationChannel;

@@ -1,4 +1,4 @@
-package com.lenefice.main;
+package com.lenefice.cafii;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -13,7 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import java.util.Locale;
-import static com.lenefice.main.AppNotification.CHANNEL_ID;
+import static com.lenefice.cafii.AppNotification.CHANNEL_ID;
 import org.greenrobot.eventbus.EventBus;
 
 public class CafiiService extends Service {

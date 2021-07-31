@@ -1,4 +1,4 @@
-package com.lenefice.main;
+package com.lenefice.cafii;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
