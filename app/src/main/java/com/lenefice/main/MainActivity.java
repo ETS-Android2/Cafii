@@ -18,7 +18,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
@@ -27,9 +26,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button button2Min, button5Min,
-            button10Min, button30Min, buttonNever, cancelButton;
-
-    private FloatingActionButton buttonInfo;
+            button10Min, button30Min, buttonNever, cancelButton, buttonInfo;
 
     private TextView textView;
 
@@ -38,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Intent myService;
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -45,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
         toMapComponents();
         askPermission();
         detectDevice();
@@ -82,19 +81,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch(view.getId()) {
 
             case R.id.button2Min:
-                sendDataStartService(120000);
+                sendDataStartService(2);
                 break;
 
             case R.id.button5Min:
-                sendDataStartService(300000);
+                sendDataStartService(5);
                 break;
 
             case R.id.button10Min:
-                sendDataStartService(600000);
+                sendDataStartService(10);
                 break;
 
             case R.id.button30Min:
-                sendDataStartService(1800000);
+                sendDataStartService(30);
                 break;
 
             case R.id.buttonNever:
@@ -102,9 +101,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.cancelButton:
-                EventBus.getDefault().post(new OnCancelEvent(true));
-                buttonsAreEnabled();
                 EventBus.getDefault().unregister(this);
+                stopService(myService);
+                buttonsAreEnabled();
                 break;
 
             case R.id.buttonInfo:
@@ -119,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onStop() {
 
         super.onStop();
+        Toast.makeText(getApplicationContext(), "Please do not remove from recents", Toast.LENGTH_LONG).show();
 
         if(isMyServiceRunning())
         EventBus.getDefault().unregister(this);
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         final String ONEPLUSCLOCK = "com.oneplus.deskclock";
         final String ASUS = "com.asus.deskclock";
-        final String VIVO = "com.android.bbkclock";
+        final String VIVO = "com.android.BBKClock";
         final String COLME = "com.coloros.alarmclock";
         final String SAMSUNG = "com.sec.android.app.clockpackage";
         final String GOCK = "com.google.android.deskclock";
@@ -239,11 +239,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void buttonsAreDisabled() {
 
         button2Min.setEnabled(false);
+        button2Min.setTextColor(getApplication().getResources().getColor(R.color.grey));
         button5Min.setEnabled(false);
+        button5Min.setTextColor(getApplication().getResources().getColor(R.color.grey));
         button10Min.setEnabled(false);
+        button10Min.setTextColor(getApplication().getResources().getColor(R.color.grey));
         button30Min.setEnabled(false);
+        button30Min.setTextColor(getApplication().getResources().getColor(R.color.grey));
         buttonNever.setEnabled(false);
-        cancelButton.setEnabled(true);
+        buttonNever.setTextColor(getApplication().getResources().getColor(R.color.grey));
+        cancelButton.setVisibility(View.VISIBLE);
 
     }
 
@@ -251,30 +256,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if(onePlus || colme || vivo) {
             buttonNever.setEnabled(false);
+            buttonNever.setTextColor(getApplication().getResources().getColor(R.color.grey));
         }
         else if(asus || samsung || others) {
             buttonNever.setEnabled(false);
+            buttonNever.setTextColor(getApplication().getResources().getColor(R.color.grey));
             button30Min.setEnabled(false);
+            button30Min.setTextColor(getApplication().getResources().getColor(R.color.grey));
         }
         else if(miui) {
             button30Min.setEnabled(false);
+            button30Min.setTextColor(getApplication().getResources().getColor(R.color.grey));
         }
         else if(gock || aosp) {
             buttonNever.setEnabled(true);
+            buttonNever.setTextColor(getApplication().getResources().getColor(R.color.white));
             button30Min.setEnabled(true);
+            button30Min.setTextColor(getApplication().getResources().getColor(R.color.white));
         }
 
     }
 
     private void buttonsAreEnabled() {
 
-        textView.setText("Click the desired preset :- ");
-        cancelButton.setEnabled(false);
+        textView.setText(R.string.SELECT_PROFILE);
+        cancelButton.setVisibility(View.INVISIBLE);
         button2Min.setEnabled(true);
+        button2Min.setTextColor(getApplication().getResources().getColor(R.color.white));
         button5Min.setEnabled(true);
+        button5Min.setTextColor(getApplication().getResources().getColor(R.color.white));
         button10Min.setEnabled(true);
+        button10Min.setTextColor(getApplication().getResources().getColor(R.color.white));
         button30Min.setEnabled(true);
+        button30Min.setTextColor(getApplication().getResources().getColor(R.color.white));
         buttonNever.setEnabled(true);
+        buttonNever.setTextColor(getApplication().getResources().getColor(R.color.white));
         showOptionsAsPerDevice();
 
     }
@@ -287,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editor = sharedPreferences.edit();
 
         myService = new Intent(this, CafiiService.class);
-        editor.putInt("timer",time);
+        editor.putInt("timer", time);
         editor.apply();
 
         EventBus.getDefault().register(this);
@@ -327,9 +343,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void showNoticeDialog() {
 
         AlertDialog info = new AlertDialog.Builder(this)
-                .setTitle("Must Read")
-                .setMessage("Himank")
-                .setPositiveButton("Okay", (dialog, which) -> dialog.dismiss()).create();
+                .setTitle(R.string.INFOTITLE)
+                .setMessage(R.string.INFO)
+                .setPositiveButton(R.string.UNDERSTAND, (dialog, which) -> dialog.dismiss()).create();
         info.show();
 
     }

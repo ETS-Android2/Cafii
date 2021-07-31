@@ -25,13 +25,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.152" />
 
-    <Button
+    <android.widget.Button
         android:id="@+id/button2Min"
         android:layout_width="137dp"
         android:layout_height="51dp"
         android:background="@drawable/min2"
         android:text="2 min"
         app:backgroundTint="#009688"
+        android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.058"
@@ -39,13 +40,14 @@
         app:layout_constraintTop_toBottomOf="@+id/textView"
         app:layout_constraintVertical_bias="0.133" />
 
-    <Button
+    <android.widget.Button
         android:id="@+id/button5Min"
         android:layout_width="137dp"
         android:layout_height="51dp"
         android:background="@drawable/min2"
         android:text="5 min"
         app:backgroundTint="#009688"
+        android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.867"
@@ -53,11 +55,12 @@
         app:layout_constraintTop_toBottomOf="@+id/textView"
         app:layout_constraintVertical_bias="0.133" />
 
-    <Button
+    <android.widget.Button
         android:id="@+id/button10Min"
         android:layout_width="137dp"
         android:layout_height="51dp"
         android:text="10 min"
+        android:textColor="@android:color/white"
         android:background="@drawable/min2"
         app:backgroundTint="#009688"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -67,13 +70,14 @@
         app:layout_constraintTop_toBottomOf="@+id/button2Min"
         app:layout_constraintVertical_bias="0.168" />
 
-    <Button
+    <android.widget.Button
         android:id="@+id/button30Min"
         android:layout_width="137dp"
         android:layout_height="51dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:text="30 min"
+        android:textColor="@android:color/white"
         android:background="@drawable/min2"
         app:backgroundTint="#009688"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -83,27 +87,26 @@
         app:layout_constraintTop_toBottomOf="@+id/button5Min"
         app:layout_constraintVertical_bias="0.168" />
 
-    <Button
+    <android.widget.Button
         android:id="@+id/buttonNever"
         android:layout_width="137dp"
         android:layout_height="51dp"
         android:text="Never"
         android:background="@drawable/min2"
-        app:backgroundTint="#009688"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
         app:layout_constraintVertical_bias="0.608" />
 
-    <Button
+    <android.widget.Button
         android:id="@+id/cancelButton"
-        android:layout_width="150dp"
-        android:layout_height="51dp"
+        android:textColor="@color/white"
+        android:layout_width="161dp"
+        android:layout_height="63dp"
         android:background="@drawable/cancelbutton"
         android:text="Cancel"
-        android:textSize="16sp"
-        app:backgroundTint="#BC114B"
+        android:textSize="18dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -111,21 +114,20 @@
         app:layout_constraintTop_toBottomOf="@+id/buttonNever"
         app:layout_constraintVertical_bias="0.762" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <Button
         android:id="@+id/buttonInfo"
-        android:layout_width="48dp"
-        android:layout_height="42dp"
-        android:clickable="true"
-        app:backgroundTint="#9E3939"
-        app:fabCustomSize="43dp"
+        style="@style/Widget.MaterialComponents.Button.Icon"
+        android:layout_width="49dp"
+        android:layout_height="40dp"
+        android:background="@drawable/infobutton"
+        app:backgroundTint="#7C071F"
+        app:icon="@drawable/ic_baseline_info_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.956"
+        app:layout_constraintHorizontal_bias="0.988"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.026"
-        app:maxImageSize="29dp"
-        app:srcCompat="@drawable/ic_baseline_info_24"
-        tools:ignore="VectorDrawableCompat" />
+        app:layout_constraintVertical_bias="0.008" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
