@@ -10,11 +10,9 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -23,7 +21,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
-
 import es.dmoral.toasty.Toasty;
 
 
@@ -397,19 +394,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         EventBus.getDefault().unregister(this);
         stopService(myService);
-
-    }
-
-    private void customToast(String message) {
-
-        Toast toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
-        View view = toast.getView();
-        TextView toastText = view.findViewById(android.R.id.message);
-        toastText.setTextSize(12);
-        toastText.setTextColor(getResources().getColor(R.color.white));
-        toast.setGravity(Gravity.BOTTOM, 0, 0);
-        view.getBackground().setColorFilter(getResources().getColor(R.color.toastcolor), PorterDuff.Mode.SRC_IN);
-        toast.show();
 
     }
 

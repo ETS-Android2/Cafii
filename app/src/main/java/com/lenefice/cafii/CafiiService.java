@@ -15,7 +15,6 @@ import androidx.core.app.NotificationCompat;
 import java.util.Locale;
 import static com.lenefice.cafii.AppNotification.CHANNEL_ID;
 import org.greenrobot.eventbus.EventBus;
-
 import es.dmoral.toasty.Toasty;
 
 public class CafiiService extends Service {
