@@ -6,6 +6,17 @@
     <string name="PRESS_BACK">Pressing back again will stop the Timer and exit</string>
     <string name="ALLOW_PERM">Please allow permission and launch the app again</string>
     <string name="INFOTITLE">Cafii - The Screen Time Genii</string>
+    <string name="INFINITY">Infinity</string>
+    <string name="COOL_DOWN">Cool Down Timer of 35 seconds is running Please wait...</string>
+    <string name="REMOVE_RECENTS"> Please do not force stop or remove from recents</string>
+    <string name="MIN2RUN">2 minutes timer is running...</string>
+    <string name="MIN5RUN">5 minutes timer is running...</string>
+    <string name="MIN10RUN">10 minutes timer is running...</string>
+    <string name="MIN30RUN">30 minutes timer is running...</string>
+    <string name="INFIRUN">Infinity timer is running...</string>
+    <string name="SERVICE">Cafii Service</string>
+    <string name="PRESETS">Timer Presets</string>
+    <string name="TIMER">timer</string>
 
     <string name="INFO">\nWelcome\n\nHere are some tips for using our App :-\n\n-> It is
         recommended to whitelist the App from Battery Optimization, also allow it to run in
@@ -24,5 +35,16 @@
     <string name="MIN30">30 Min</string>
     <string name="NEVER">Never</string>
     <string name="CANCEL">Cancel</string>
+    <string name="RECENTS">Please do not remove from recents</string>
+    <string name="ASUS">com.asus.deskclock</string>
+    <string name="ONEPLUS">com.oneplus.deskclock</string>
+    <string name="VIVO">com.android.BBKClock</string>
+    <string name="COLME">com.coloros.alarmclock</string>
+    <string name="SAMSUNG">com.sec.android.app.clockpackage</string>
+    <string name="GOCK">com.google.android.deskclock</string>
+    <string name="MIAO">com.android.deskclock</string>
+    <string name="MIUI">com.miui.gallery</string>
+    <string name="HUAWEI">com.huawei.appmarket</string>
+    <string name="PACKAGE">package:</string>
 
 </resources>

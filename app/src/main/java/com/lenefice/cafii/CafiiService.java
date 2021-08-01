@@ -16,6 +16,8 @@ import java.util.Locale;
 import static com.lenefice.cafii.AppNotification.CHANNEL_ID;
 import org.greenrobot.eventbus.EventBus;
 
+import es.dmoral.toasty.Toasty;
+
 public class CafiiService extends Service {
 
     private int defaultTimeOut, newScreenTimeOut;
@@ -32,8 +34,8 @@ public class CafiiService extends Service {
         super.onCreate();
         getDefaultTimeOut();
 
-        SharedPreferences sharedPreferences = getSharedPreferences("Timer Presets", Context.MODE_PRIVATE);
-        newScreenTimeOut = sharedPreferences.getInt("timer",0);
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.PRESETS), Context.MODE_PRIVATE);
+        newScreenTimeOut = sharedPreferences.getInt(getString(R.string.TIMER),0);
 
     }
 
@@ -66,8 +68,9 @@ public class CafiiService extends Service {
 
         setTimeOut(defaultTimeOut);
         stopForeground(true);
-
-        Toast.makeText(getApplicationContext(), "Timer Ended", Toast.LENGTH_SHORT).show();
+        Toasty.custom(this, getString(R.string.TIMER_STOP),
+                R.drawable.toast_icon_wrong, R.color.toastcolorred,
+                Toast.LENGTH_SHORT, true, true).show();
 
         super.onDestroy();
 
@@ -95,28 +98,30 @@ public class CafiiService extends Service {
         switch(newScreenTimeOut) {
 
             case 2 :
-                toastNotify = "2 minutes timer is running...";
+                toastNotify = getString(R.string.MIN2RUN);
                 break;
 
             case 5 :
-                toastNotify = "5 minutes timer is running...";
+                toastNotify = getString(R.string.MIN5RUN);
                 break;
 
             case 10 :
-                toastNotify = "10 minutes timer is running...";
+                toastNotify = getString(R.string.MIN10RUN);
                 break;
 
             case 30 :
-                toastNotify = "30 minutes timer is running...";
+                toastNotify = getString(R.string.MIN30RUN);
                 break;
 
             case Integer.MAX_VALUE :
-                toastNotify = "Infinity timer is running...";
+                toastNotify = getString(R.string.INFIRUN);
                 break;
 
         }
 
-        Toast.makeText(getApplicationContext(), toastNotify, Toast.LENGTH_SHORT).show();
+        Toasty.custom(this, toastNotify, R.drawable.toast_icon,
+                R.color.toastcolor, Toast.LENGTH_SHORT, true,
+                true).show();
 
     }
 
@@ -126,11 +131,11 @@ public class CafiiService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         Notification foregroundNotification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Cafii Service")
+                .setContentTitle(getString(R.string.SERVICE))
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentIntent(pendingIntent)
                 .setPriority(5)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(toastNotify + " Please do not force stop or remove from recents"))
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(toastNotify + getString(R.string.REMOVE_RECENTS)))
                 .build();
 
         startForeground(1, foregroundNotification);
@@ -158,7 +163,7 @@ public class CafiiService extends Service {
                     timeLeft = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
                 }
                 else {
-                    timeLeft = "Infinity";
+                    timeLeft = getResources().getString(R.string.INFINITY);
                 }
 
                 EventBus.getDefault().post(new EventTimer(timeLeft));
@@ -176,7 +181,7 @@ public class CafiiService extends Service {
 
                     @Override
                     public void onTick(long coolDownTicks) {
-                        EventBus.getDefault().post(new EventTimer("Cool Down Timer of 35 seconds is running Please wait..."));
+                        EventBus.getDefault().post(new EventTimer(getResources().getString(R.string.COOL_DOWN)));
                     }
 
                     @Override

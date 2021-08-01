@@ -10,9 +10,11 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -21,6 +23,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
+
+import es.dmoral.toasty.Toasty;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -120,7 +124,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onStop();
 
         if(isMyServiceRunning()) {
-            Toast.makeText(getApplicationContext(), "Please do not remove from recents", Toast.LENGTH_SHORT).show();
+            Toasty.custom(this, getString(R.string.RECENTS),
+                    R.drawable.toast_info, R.color.toastblue,
+                    Toast.LENGTH_SHORT, true, true).show();
             EventBus.getDefault().unregister(this);
         }
 
@@ -133,9 +139,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (pressedTime + 2000 > System.currentTimeMillis()) {
                 super.onBackPressed();
                 cancelTriggered();
-                Toast.makeText(MainActivity.this, R.string.TIMER_STOP, Toast.LENGTH_LONG).show();
+                Toasty.custom(this, getString(R.string.TIMER_STOP),
+                        R.drawable.toast_icon_wrong, R.color.toastcolorred,
+                        Toast.LENGTH_SHORT, true, true).show();
             } else {
-                Toast.makeText(getBaseContext(), R.string.PRESS_BACK, Toast.LENGTH_LONG).show();
+                Toasty.custom(this, getString(R.string.PRESS_BACK),
+                        R.drawable.toast_info, R.color.toastblue,
+                        Toast.LENGTH_SHORT, true, true).show();
             }
         }
         else {
@@ -169,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 success = true;
             } else {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-                intent.setData(Uri.parse("package:" + getApplicationContext().getPackageName()));
+                intent.setData(Uri.parse(getString(R.string.PACKAGE) + getApplicationContext().getPackageName()));
                 startActivity(intent);
             }
         }
@@ -178,7 +188,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         if(!success) {
-            Toast.makeText(MainActivity.this, R.string.ALLOW_PERM, Toast.LENGTH_LONG).show();
+            Toasty.custom(this, getString(R.string.ALLOW_PERM),
+                    R.drawable.toast_info, R.color.toastblue,
+                    Toast.LENGTH_SHORT, true, true).show();
             finish();
         }
 
@@ -213,15 +225,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void detectDevice() {
 
-        final String ONEPLUSCLOCK = "com.oneplus.deskclock",
-                ASUS = "com.asus.deskclock",
-                VIVO = "com.android.BBKClock",
-                COLME = "com.coloros.alarmclock",
-                SAMSUNG = "com.sec.android.app.clockpackage",
-                GOCK = "com.google.android.deskclock",
-                MIAO = "com.android.deskclock",
-                MIUI = "com.miui.gallery",
-                HUAWEI = "com.huawei.appmarket";
+        final String ONEPLUSCLOCK = getString(R.string.ONEPLUS),
+                ASUS = getString(R.string.ASUS),
+                VIVO = getString(R.string.VIVO),
+                COLME = getString(R.string.COLME),
+                SAMSUNG = getString(R.string.SAMSUNG),
+                GOCK = getString(R.string.GOCK),
+                MIAO = getString(R.string.MIAO),
+                MIUI = getString(R.string.MIUI),
+                HUAWEI = getString(R.string.HUAWEI);
 
         Context context = getApplicationContext();
         PackageManager packageManager = context.getPackageManager();
@@ -330,11 +342,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         SharedPreferences sharedPreferences;
         SharedPreferences.Editor editor;
-        sharedPreferences = getSharedPreferences("Timer Presets",Context.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(getString(R.string.PRESETS),Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
         myService = new Intent(this, CafiiService.class);
-        editor.putInt("timer", time);
+        editor.putInt(getString(R.string.TIMER), time);
         editor.apply();
 
         EventBus.getDefault().register(this);
@@ -385,6 +397,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         EventBus.getDefault().unregister(this);
         stopService(myService);
+
+    }
+
+    private void customToast(String message) {
+
+        Toast toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
+        View view = toast.getView();
+        TextView toastText = view.findViewById(android.R.id.message);
+        toastText.setTextSize(12);
+        toastText.setTextColor(getResources().getColor(R.color.white));
+        toast.setGravity(Gravity.BOTTOM, 0, 0);
+        view.getBackground().setColorFilter(getResources().getColor(R.color.toastcolor), PorterDuff.Mode.SRC_IN);
+        toast.show();
 
     }
 
