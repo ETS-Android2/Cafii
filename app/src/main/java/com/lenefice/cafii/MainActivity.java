@@ -11,6 +11,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
@@ -33,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private long pressedTime;
 
     private boolean success, onePlus, asus, vivo, colme, samsung,
-            gock, miui, aosp, huawei, others;
+            gock, miui, aosp, huawei, others, above10;
 
     private Intent myService;
 
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         toMapComponents();
+        detectAndroidVersion();
         askPermission();
         detectDevice();
 
@@ -121,10 +123,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onStop();
 
         if(isMyServiceRunning()) {
-            Toasty.custom(this, getString(R.string.RECENTS),
-                    R.drawable.toast_info, R.color.toastblue,
-                    Toast.LENGTH_SHORT, true, true).show();
-            EventBus.getDefault().unregister(this);
+            if(above10) {
+                Toast.makeText(this, R.string.RECENTS, Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toasty.custom(this, getString(R.string.RECENTS),
+                        R.drawable.toast_info, R.color.toastblue,
+                        Toast.LENGTH_SHORT, true, true).show();
+                EventBus.getDefault().unregister(this);
+            }
         }
 
     }
@@ -136,9 +143,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (pressedTime + 2000 > System.currentTimeMillis()) {
                 super.onBackPressed();
                 cancelTriggered();
-                Toasty.custom(this, getString(R.string.TIMER_STOP),
-                        R.drawable.toast_icon_wrong, R.color.toastcolorred,
-                        Toast.LENGTH_SHORT, true, true).show();
+                if(above10) {
+                    Toast.makeText(this, R.string.TIMER_STOP, Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    if(above10) {
+                        Toast.makeText(this, R.string.TIMER_STOP, Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        Toasty.custom(this, getString(R.string.TIMER_STOP),
+                                R.drawable.toast_icon_wrong, R.color.toastcolorred,
+                                Toast.LENGTH_SHORT, true, true).show();
+                    }
+                }
             } else {
                 Toasty.custom(this, getString(R.string.PRESS_BACK),
                         R.drawable.toast_info, R.color.toastblue,
@@ -185,9 +202,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         if(!success) {
-            Toasty.custom(this, getString(R.string.ALLOW_PERM),
-                    R.drawable.toast_info, R.color.toastblue,
-                    Toast.LENGTH_SHORT, true, true).show();
+            if(above10) {
+                    Toast.makeText(this, R.string.ALLOW_PERM, Toast.LENGTH_SHORT).show();
+                }
+            else {
+                Toasty.custom(this, getString(R.string.ALLOW_PERM),
+                        R.drawable.toast_info, R.color.toastblue,
+                        Toast.LENGTH_SHORT, true, true).show();
+            }
             finish();
         }
 
@@ -270,6 +292,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    private void detectAndroidVersion() {
+        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            above10 = true;
+        }
+    }
+
     private void buttonsAreDisabled() {
 
         button2Min.setEnabled(false);
@@ -344,6 +372,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         myService = new Intent(this, CafiiService.class);
         editor.putInt(getString(R.string.TIMER), time);
+        editor.putBoolean(getString(R.string.ABOVE10), above10);
         editor.apply();
 
         EventBus.getDefault().register(this);
@@ -395,6 +424,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         EventBus.getDefault().unregister(this);
         stopService(myService);
 
+    }
+
+    public void onClickLogo(View v) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse
+                ("https://www.youtube.com/channel/UCO7d2zbuRwpf8wsUlz-mycw/videos"));
+        startActivity(browserIntent);
     }
 
 }

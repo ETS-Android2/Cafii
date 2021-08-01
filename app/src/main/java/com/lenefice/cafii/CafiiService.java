@@ -25,7 +25,7 @@ public class CafiiService extends Service {
 
     private String timeLeft, toastNotify;
 
-    private boolean isCountDTRunning, isCoolDTRunning;
+    private boolean isCountDTRunning, isCoolDTRunning, above10;
 
     @Override
     public void onCreate() {
@@ -35,6 +35,7 @@ public class CafiiService extends Service {
 
         SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.PRESETS), Context.MODE_PRIVATE);
         newScreenTimeOut = sharedPreferences.getInt(getString(R.string.TIMER),0);
+        above10 = sharedPreferences.getBoolean(getString(R.string.ABOVE10), false);
 
     }
 
@@ -67,9 +68,15 @@ public class CafiiService extends Service {
 
         setTimeOut(defaultTimeOut);
         stopForeground(true);
-        Toasty.custom(this, getString(R.string.TIMER_STOP),
-                R.drawable.toast_icon_wrong, R.color.toastcolorred,
-                Toast.LENGTH_SHORT, true, true).show();
+
+        if(above10) {
+            Toast.makeText(this, R.string.TIMER_STOP, Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toasty.custom(this, getString(R.string.TIMER_STOP),
+                    R.drawable.toast_icon_wrong, R.color.toastcolorred,
+                    Toast.LENGTH_SHORT, true, true).show();
+        }
 
         super.onDestroy();
 
@@ -118,9 +125,14 @@ public class CafiiService extends Service {
 
         }
 
-        Toasty.custom(this, toastNotify, R.drawable.toast_icon,
-                R.color.toastcolor, Toast.LENGTH_SHORT, true,
-                true).show();
+        if(above10) {
+            Toast.makeText(this, toastNotify, Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toasty.custom(this, toastNotify, R.drawable.toast_icon,
+                    R.color.toastcolor, Toast.LENGTH_SHORT, true,
+                    true).show();
+        }
 
     }
 
