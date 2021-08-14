@@ -1,3 +1,14 @@
+/**
+ * <h1>CAfii - The Run Time Genii</h1>
+ * This is the default and only Activity
+ * for Cafii where user will interact.
+ * Every UI component will be shown here.
+ *
+ * @author  Ishaan Kaushal & Himank Bose
+ * @version 5.9.5
+ * @since   2021-07-22
+ */
+
 package com.lenefice.cafii;
 
 import android.annotation.SuppressLint;
@@ -38,6 +49,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Intent myService;
 
+    /**
+     * This method creates MainActivity from activity_main.xml.
+     * This method is executed just after the app starts.
+     * This will fully set the UI portion of App with all permission & detection.
+     * Override annotation will override this method in AppCompatActivity.
+     * @param savedInstanceState The savedInstanceState is a reference to a Bundle object.
+     */
+
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +72,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         detectDevice();
 
     }
+
+    /**
+     * After onCreate method or onStop method this will be executed.
+     * This will show UI status according to service running or not.
+     * It will also register the EventBus events coming from service.
+     * Override annotation will override this method in AppCompatActivity.
+     */
 
     @Override
     protected void onStart() {
@@ -77,6 +103,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
     }
+
+    /**
+     * This method will be executed on tap of any Clickable component.
+     * As soon as any clickable component is tapped its id will be
+     * selected according to its switch and will execute particular case.
+     * Override annotation will override this method in View.OnClickListener.
+     */
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -117,6 +150,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    /**
+     * This method will be executed after minimizing the App or pressing back.
+     * This will check if service is running it will show appropriate Toast
+     * and will unregister the EventBus for time being to prevent memory leak.
+     * Override annotation will override this method in AppCompatActivity.
+     */
+
     @Override
     protected void onStop() {
 
@@ -136,6 +176,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    /**
+     * This method will be executed if back button is pressed.
+     * This will check if service is running it will show appropriate Toast
+     * and will stop service and exit if back button is pressed twice
+     * Override annotation will override this method in AppCompatActivity.
+     */
+
     @Override
     public void onBackPressed() {
 
@@ -143,23 +190,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (pressedTime + 2000 > System.currentTimeMillis()) {
                 super.onBackPressed();
                 cancelTriggered();
+
+
                 if(above10) {
                     Toast.makeText(this, R.string.TIMER_STOP, Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    if(above10) {
-                        Toast.makeText(this, R.string.TIMER_STOP, Toast.LENGTH_SHORT).show();
-                    }
-                    else {
                         Toasty.custom(this, getString(R.string.TIMER_STOP),
                                 R.drawable.toast_icon_wrong, R.color.toastcolorred,
                                 Toast.LENGTH_SHORT, true, true).show();
                     }
-                }
+
             } else {
-                Toasty.custom(this, getString(R.string.PRESS_BACK),
-                        R.drawable.toast_info, R.color.toastblue,
-                        Toast.LENGTH_SHORT, true, true).show();
+                if(above10) {
+                    Toast.makeText(this, R.string.PRESS_BACK, Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Toasty.custom(this, getString(R.string.PRESS_BACK),
+                            R.drawable.toast_info, R.color.toastblue,
+                            Toast.LENGTH_SHORT, true, true).show();
+                }
             }
         }
         else {
@@ -169,6 +219,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pressedTime = System.currentTimeMillis();
 
     }
+
+    /**
+     * This method will map the components in activity_main.xml to
+     * MainActivity.java
+     */
 
     private void toMapComponents() {
 
@@ -182,6 +237,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonInfo = findViewById(R.id.buttonInfo);
 
     }
+
+    /**
+     * This method will map the components in activity_main.xml to
+     * MainActivity.java
+     */
 
     private void askPermission() {
 
@@ -302,14 +362,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         button2Min.setEnabled(false);
         button2Min.setTextColor(getApplication().getResources().getColor(R.color.grey));
+
         button5Min.setEnabled(false);
         button5Min.setTextColor(getApplication().getResources().getColor(R.color.grey));
+
         button10Min.setEnabled(false);
         button10Min.setTextColor(getApplication().getResources().getColor(R.color.grey));
+
         button30Min.setEnabled(false);
         button30Min.setTextColor(getApplication().getResources().getColor(R.color.grey));
+
         buttonNever.setEnabled(false);
         buttonNever.setTextColor(getApplication().getResources().getColor(R.color.grey));
+
         cancelButton.setVisibility(View.VISIBLE);
 
     }
@@ -427,9 +492,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void onClickLogo(View v) {
+
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse
-                ("https://www.youtube.com/channel/UCO7d2zbuRwpf8wsUlz-mycw/videos"));
+                (getString(R.string.LENEFICE)));
         startActivity(browserIntent);
+
     }
 
 }

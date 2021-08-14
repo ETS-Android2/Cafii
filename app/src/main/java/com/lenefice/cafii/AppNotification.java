@@ -15,6 +15,7 @@ public class AppNotification extends Application {
     }
 
     private void createMyNotification() {
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NotificationChannel serviceChannel = new NotificationChannel(
                     CHANNEL_ID,

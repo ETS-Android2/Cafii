@@ -184,8 +184,7 @@ public class CafiiService extends Service {
             public void onFinish() {
 
                 isCountDTRunning = false;
-                Settings.System.putInt(
-                        getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 30000);
+                setTimeOut(30000);
 
                 isCoolDTRunning = true;
                 coolDownTimer = new CountDownTimer(35000,1000) {
