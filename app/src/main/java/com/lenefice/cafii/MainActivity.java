@@ -54,7 +54,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * This method is executed just after the app starts.
      * This will fully set the UI portion of App with all permission & detection.
      * Override annotation will override this method in AppCompatActivity.
-     * @param savedInstanceState The savedInstanceState is a reference to a Bundle object.
+     * @param savedInstanceState The savedInstanceState is a
+     * reference to a Bundle object.
      */
 
     @SuppressLint("SourceLockedOrientationActivity")
