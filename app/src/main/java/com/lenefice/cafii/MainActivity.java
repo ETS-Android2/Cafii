@@ -171,8 +171,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Toasty.custom(this, getString(R.string.RECENTS),
                         R.drawable.toast_info, R.color.toastblue,
                         Toast.LENGTH_SHORT, true, true).show();
-                EventBus.getDefault().unregister(this);
             }
+            EventBus.getDefault().unregister(this);
         }
 
     }
